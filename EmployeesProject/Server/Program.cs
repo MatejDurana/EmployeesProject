@@ -1,11 +1,26 @@
+using EmployeesProject.Server.Data;
+using EmployeesProject.Server.Services.EmployeeServices;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddDbContext<DataContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("EmployeeDatabase"))
+);
+builder.Services.AddScoped(http => new HttpClient
+{
+    BaseAddress = new Uri(builder.Configuration.GetSection("BaseUri").Value!)
+});
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+
+
 
 var app = builder.Build();
 
