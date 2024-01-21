@@ -1,0 +1,67 @@
+﻿@page "/positions"
+@inject IPositionService PositionService
+@inject NavigationManager NavigationManager
+
+<h3>Positions</h3>
+
+@if (positions == null)
+{
+    <p>Loading positions</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (positions.Count() == 0)
+            {
+                <tr>
+                    <td colspan="8" align="center">No Data Found</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var position in positions)
+                {
+                    <tr>
+                        <td>@position.PositionName</td>
+                        <td>
+                            <button class="btn btn-primary"
+                                    @onclick="(() => EditPositionRedirect(position.Id))">
+                                <i class="oi oi-pencil"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+
+
+<button @onclick="(() => AddPositionRedirect())">Create new position</button>
+
+@code {
+    List<Position>? positions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        positions = await PositionService.GetAllPositions();
+    }
+
+
+    void EditPositionRedirect(int id)
+    {
+        NavigationManager.NavigateTo($"position/{id}");
+    }
+
+    void AddPositionRedirect()
+    {
+        NavigationManager.NavigateTo("position");
+    }
+}
