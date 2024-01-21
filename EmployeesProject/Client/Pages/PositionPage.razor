@@ -1,0 +1,73 @@
+﻿@page "/position"
+@page "/position/{id:int}"
+
+@inject IPositionService PositionService
+@inject NavigationManager NavigationManager
+
+@if (Id is null)
+{
+    <PageTitle>Create a new position</PageTitle>
+    <h3>Create a new position</h3>
+}
+else
+{
+    <PageTitle>Edit @position.PositionName</PageTitle>
+    <h3>Edit @position.PositionName</h3>
+}
+
+<EditForm Model="position" OnSubmit="HandleSubmit">
+    <div>
+        <label for="positionNameId">Position Name</label>
+        <InputText id="positionNameId" @bind-Value="position.PositionName" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">@btnText</button>
+</EditForm>
+
+@if (Id != null)
+{
+    <button @onclick="(() => DeletePosition())" class="btn btn-danger">Delete position</button>
+}
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    string btnText = string.Empty;
+
+    [Parameter]
+    public Position position { get; set; } = new Position();
+
+    protected override void OnInitialized()
+    {
+        btnText = Id == null ? "Save new position" : "Update position";
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await PositionService.GetPositionById((int)Id);
+            if (result is not null)
+                position = result;
+            else
+                NavigationManager.NavigateTo("/position");
+        }
+    }
+
+
+    async Task HandleSubmit()
+    {
+        if (Id is null)
+        {
+            await PositionService.AddPosition(position);
+        }
+        else
+        {
+            await PositionService.UpdatePosition((int)Id, position);
+        }
+    }
+
+    async Task DeletePosition()
+    {
+        await PositionService.DeletePosition(position.Id);
+    }
+}

@@ -21,10 +21,27 @@ namespace EmployeesProject.Client.Services.PositionServices
             _navigatorManager.NavigateTo("positions");
         }
 
-		public async Task<List<Position>> GetAllPositions()
+        public async Task DeletePosition(int id)
+        {
+            await _httpClient.DeleteAsync($"/api/position/{id}");
+            _navigatorManager.NavigateTo("positions");
+        }
+
+        public async Task<List<Position>> GetAllPositions()
 		{
             var result = await _httpClient.GetFromJsonAsync<List<Position>>("api/position");
             return result ?? new List<Position>();
         }
-	}
+
+        public async Task<Position?> GetPositionById(int id)
+        {
+            return await _httpClient.GetFromJsonAsync<Position>($"/api/position/{id}");
+        }
+
+        public async Task UpdatePosition(int id, Position position)
+        {
+            await _httpClient.PutAsJsonAsync($"/api/position/{id}", position);
+            _navigatorManager.NavigateTo("positions");
+        }
+    }
 }

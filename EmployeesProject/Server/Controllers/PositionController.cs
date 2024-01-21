@@ -27,5 +27,23 @@ namespace EmployeesProject.Server.Controllers
 		{
 			return Ok(await _positionService.CreatePosition(position));
 		}
-	}
+
+		[HttpGet("{id}")]
+        public async Task<ActionResult<Position>> GetPositionById(int id)
+        {
+            return Ok(await _positionService.GetPositionById(id));
+        }
+
+		[HttpPut("{id}")]
+		public async Task<ActionResult<Position>> UpdatePosition(int id, Position position)
+        {
+            return Ok(await _positionService.UpdatePosition(id, position));
+        }
+		
+		[HttpDelete("{id}")]
+		public async Task<ActionResult<bool>> DeletePosition(int id)
+        {
+            return Ok(await _positionService.DeletePosition(id));
+        }
+    }
 }
