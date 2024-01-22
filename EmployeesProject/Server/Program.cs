@@ -1,5 +1,6 @@
 using EmployeesProject.Server.Data;
 using EmployeesProject.Server.Services.EmployeeServices;
+using EmployeesProject.Server.Services.IPAddressServices;
 using EmployeesProject.Server.Services.PositionServices;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IPositionService, PositionService>();
+builder.Services.AddScoped<IPAddressService>();
 
 
 

@@ -41,7 +41,7 @@ else
     <div>
         <label for="positionId">Select position</label>
         <InputSelect class="form-control" id="positionId" @bind-Value="employee.PositionId">
-            <option value="null"></option>
+            <option value=""></option>
             @foreach (var position in positions)
             {
                 <option value="@position.Id">@position.PositionName</option>
@@ -55,13 +55,12 @@ else
         <ValidationMessage For="@(() => employee.IPAddress)" />
 
     </div>
-    <div>
-        <label for="ipCountryCodeId">IP Country Code</label>
-        <InputText id="ipCountryCodeId" @bind-Value="employee.IPCountryCode" class="form-control" />
-    </div>
+        
+    <br/>
     <button type="submit" disabled="@disabledBtns" class="btn btn-primary">@btnText</button>
 
     <DataAnnotationsValidator />
+    <ValidationSummary/>
 
 </EditForm>
 
@@ -77,14 +76,15 @@ else
     [Parameter]
     public int? Id { get; set; }
 
-    bool disabledBtns = false;
-    string btnText = string.Empty;
-    List<Position> positions = new List<Position>();
+    private bool disabledBtns = false;
+    private string btnText = string.Empty;
+    private List<Position> positions = new List<Position>();
 
-    [Parameter, EditorRequired]
+    [Parameter]
     public Employee employee { get; set; } = new Employee()
     {
         BirthDate = new DateTime(1990, 1, 1),
+        IPCountryCode = "",
         Position = new Position()
     };
 
@@ -114,11 +114,7 @@ else
     async Task HandleSubmit()
     {
         disabledBtns = true;
-        if (employee.PositionId == null)
-        {
-            HandleError("You must choose position");
-            return;
-        }
+        
         var position = positions.FirstOrDefault(p => p.Id == employee.PositionId);
         if(position == null)
         {
@@ -127,6 +123,7 @@ else
         }
         else
             employee.Position = position;
+
         if (Id == null)
         {
             var response = await EmployeeService.AddEmployee(employee);
@@ -151,13 +148,9 @@ else
     async Task HandleResponse<T>(ServiceResponse<T> response)
     {
         if (response.Success)
-        {
             await HandleSuccess(response.Message);
-        }
         else
-        {
-            toastService.ShowError(response.Message);
-        }
+            HandleError(response.Message);
     }
 
     async Task HandleSuccess(string message)

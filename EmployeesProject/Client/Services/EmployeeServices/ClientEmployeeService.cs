@@ -28,8 +28,13 @@ namespace EmployeesProject.Client.Services.EmployeeServices
             {
                 var result = await _httpClient.PostAsJsonAsync("/api/employee", employee);
                 var serviceResponse = await result.Content.ReadFromJsonAsync<ServiceResponse<Employee>>();
-                if (serviceResponse == null || !serviceResponse.Success)
+                if (serviceResponse == null || !serviceResponse.Success) {
+                    if (serviceResponse != null && !serviceResponse.Hidden)
+                    {
+                        throw new Exception(serviceResponse.Message);
+                    }
                     throw new Exception("An error occurred while attempting to add the employee.");
+                }
                 return serviceResponse;
             }
             catch (Exception ex)

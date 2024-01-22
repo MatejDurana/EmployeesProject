@@ -7,6 +7,16 @@ using System.Threading.Tasks;
 
 namespace EmployeesProject.Shared.Models
 {
+    public class IPAddressAttribute : RegularExpressionAttribute
+    {
+        private const string IPAddressPattern = @"^(\d{1,3}\.){3}\d{1,3}$|^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|[0-9a-fA-F]{1,4}(:[0-9a-fA-F]{1,4}){1,6})$";
+
+        public IPAddressAttribute() : base(IPAddressPattern)
+        {
+            ErrorMessage = "Please enter a valid IP address.";
+        }
+    }
+
     public class Employee
     {
         public int Id { get; set; }
@@ -28,6 +38,7 @@ namespace EmployeesProject.Shared.Models
         public Position Position { get; set; }
 
         [Required(ErrorMessage = "Employee IP address is required")]
+        [IPAddress]
         public string IPAddress { get; set; }
 
         public string IPCountryCode { get; set; }

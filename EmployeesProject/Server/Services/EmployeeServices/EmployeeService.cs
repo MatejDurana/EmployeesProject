@@ -1,4 +1,6 @@
-﻿using EmployeesProject.Server.Data;
+﻿using EmployeesProject.Client.Pages;
+using EmployeesProject.Server.Data;
+using EmployeesProject.Server.Services.IPAddressServices;
 using EmployeesProject.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -8,21 +10,36 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace EmployeesProject.Server.Services.EmployeeServices
 {
     public class EmployeeService : IEmployeeService
     {
         private readonly DataContext _context;
+        private readonly IPAddressService _ipAddressService;
 
-        public EmployeeService(DataContext dataContext)
+        public EmployeeService(DataContext dataContext, IPAddressServices.IPAddressService ipAddressService)
         {
             _context = dataContext;
+            _ipAddressService = ipAddressService;
         }
 
         public async Task<ServiceResponse<Employee>> AddEmployee(Employee employee)
         {
             var serviceResponse = new ServiceResponse<Employee>();
-            try { 
+            try {
+
+                if (await EmployeeExists(employee)) { 
+                    serviceResponse.Hidden = false;
+                    throw new Exception("Employee with these details already exists.");
+                }
+
+                var ipAddressServiceResponse = await _ipAddressService.GetCountryCodeFromIPAddress(employee.IPAddress);
+                if(!ipAddressServiceResponse.Success) {
+                    throw new Exception(ipAddressServiceResponse.Message);
+                }
+                employee.IPCountryCode = ipAddressServiceResponse.Data!;
+
                 _context.Employees.Add(employee);
                 _context.Positions.Attach(employee.Position);
                 await _context.SaveChangesAsync();
@@ -38,6 +55,13 @@ namespace EmployeesProject.Server.Services.EmployeeServices
             return serviceResponse;
         }
 
+        private async Task<bool> EmployeeExists(Employee employee)
+        {
+            return await _context.Employees.AnyAsync(e =>
+                e.Name == employee.Name &&
+                e.Surname == employee.Surname &&
+                e.BirthDate == employee.BirthDate);
+        }
 
         public async Task<ServiceResponse<List<Employee>>> GetAllEmployees()
         {
@@ -62,7 +86,11 @@ namespace EmployeesProject.Server.Services.EmployeeServices
             var serviceResponse = new ServiceResponse<Employee>();
             try
             {
-                serviceResponse.Data = await _context.Employees.Include(e => e.Position).FirstOrDefaultAsync(e => e.Id == employeeId);
+                var employee = await _context.Employees.Include(e => e.Position).FirstOrDefaultAsync(e => e.Id == employeeId);
+                if (employee == null)
+                    throw new Exception($"Employee with id {employeeId} not found");
+
+                serviceResponse.Data = employee;
                 serviceResponse.Message = "Employee data obtained successfully.";
             }
             catch (Exception ex)
@@ -87,7 +115,13 @@ namespace EmployeesProject.Server.Services.EmployeeServices
                 dbEmployee.Surname = employee.Surname;
                 dbEmployee.BirthDate = employee.BirthDate;
                 dbEmployee.IPAddress = employee.IPAddress;
-                dbEmployee.IPCountryCode = employee.IPCountryCode;
+
+                var ipAddressServiceResponse = await _ipAddressService.GetCountryCodeFromIPAddress(employee.IPAddress);
+                if (!ipAddressServiceResponse.Success)
+                {
+                    throw new Exception(ipAddressServiceResponse.Message);
+                }
+                dbEmployee.IPCountryCode = ipAddressServiceResponse.Data!;
          
                 dbEmployee.PositionId = employee.Position.Id;
 
