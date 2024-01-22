@@ -9,7 +9,14 @@ namespace EmployeesProject.Client.Services.EmployeeServices
 {
 	public interface IEmployeeService
 	{
-		List<Employee> Employees { get; set; }
-		Task<List<Employee>> GetAllEmployees();
+		Task<ServiceResponse<List<Employee>>> GetAllEmployees();
+
+		Task<ServiceResponse<Employee>> AddEmployee(Employee employee);
+
+		Task<ServiceResponse<Employee>> GetEmployeeById(int employeeId);
+
+		Task<ServiceResponse<Employee>> UpdateEmployee(Employee employee);
+		Task<ServiceResponse<bool>> DeleteEmployee(int employeeId);
+
 	}
 }

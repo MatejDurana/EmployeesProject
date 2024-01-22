@@ -1,0 +1,119 @@
+﻿@page "/employee"
+@page "/employee/{id:int}"
+
+@inject IEmployeeService EmployeeService
+@inject IPositionService PositionService
+@inject NavigationManager NavigationManager
+
+@if (Id is null)
+{
+    <PageTitle>Create a new employee</PageTitle>
+    <h3>Create a new employee</h3>
+}
+else
+{
+    <PageTitle>Edit @employee.Name @employee.Surname</PageTitle>
+    <h3>Edit @employee.Name @employee.Surname</h3>
+}
+
+<EditForm Model="employee" OnSubmit="HandleSubmit">
+    <div>
+        <label for="nameId">Name</label>
+        <InputText id="nameId" @bind-Value="employee.Name" class="form-control" />
+    </div>
+    <div>
+        <label for="surnameId">Surname</label>
+        <InputText id="surnameId" @bind-Value="employee.Surname" class="form-control" />
+    </div>
+    <div>
+        <label for="birthDateId">Birth Date</label>
+        <InputDate id="birthDateId" @bind-Value="employee.BirthDate" class="form-control" />
+    </div>
+    <div>
+        <label for="positionId">Select position</label>
+        <InputSelect class="form-control" id="positionId" @bind-Value="@PositionId">
+            <option value="-1"></option>
+            @foreach (var position in positions)
+            {
+                <option value="@position.Id">@position.PositionName</option>
+            }
+        </InputSelect>
+    </div>
+    <div>
+        <label for="ipAddressId">IP Address</label>
+        <InputText id="ipAddressId" @bind-Value="employee.IPAddress" class="form-control" />
+    </div>
+    <div>
+        <label for="ipCountryCodeId">IP Country Code</label>
+        <InputText id="ipCountryCodeId" @bind-Value="employee.IPCountryCode" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">@btnText</button>
+</EditForm>
+
+@if (Id != null)
+{
+    <button @onclick="(() => DeleteEmployee())" class="btn btn-danger">Delete position</button>
+}
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    public int PositionId { get; set; }
+
+    string btnText = string.Empty;
+    List<Position> positions = new List<Position>();
+
+    [Parameter]
+    public Employee employee { get; set; } = new Employee();
+
+    protected override async Task OnInitializedAsync()
+    {
+        btnText = Id == null ? "Save new position" : "Update position";
+
+        positions = await PositionService.GetAllPositions();
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await EmployeeService.GetEmployeeById((int)Id);
+            if (result is not null){
+                employee = result.Data;
+                PositionId = employee.Position.Id;
+            }
+            else
+                NavigationManager.NavigateTo("/employee");
+        }
+    }
+
+
+    async Task HandleSubmit()
+    {
+        var position = positions.FirstOrDefault(p => p.Id == PositionId);
+        if(position == null)
+        {
+            Console.WriteLine("You must choose position");
+            return;
+        }
+        else
+        {
+            employee.Position = position;
+        }
+        if (Id is null)
+        {
+            await EmployeeService.AddEmployee(employee);
+        }
+        else
+        {
+            await EmployeeService.UpdateEmployee(employee);
+        }
+    }
+
+    async Task DeleteEmployee()
+    {
+        await EmployeeService.DeleteEmployee(employee.Id);
+    }
+}

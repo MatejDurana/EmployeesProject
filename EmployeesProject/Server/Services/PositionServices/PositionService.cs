@@ -12,7 +12,7 @@ namespace EmployeesProject.Server.Services.PositionServices
         {
 			_context = dataContext;
 		}
-        public async Task<Position> CreatePosition(Position position)
+        public async Task<Position> AddPosition(Position position)
 		{
 			_context.Add(position);
 			await _context.SaveChangesAsync();
@@ -38,7 +38,11 @@ namespace EmployeesProject.Server.Services.PositionServices
 
         public async Task<Position?> GetPositionById(int id)
         {
-			return await _context.Positions.FindAsync(id);
+			var result = await _context.Positions.FindAsync(id);
+			if (result != null) { 
+				return result;
+			}
+			throw new Exception("Position not found");
         }
 
         public async Task<Position?> UpdatePosition(int id, Position position)

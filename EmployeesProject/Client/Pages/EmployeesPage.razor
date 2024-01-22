@@ -1,0 +1,79 @@
+﻿@page "/employees"
+@inject IEmployeeService EmployeeService
+@inject NavigationManager NavigationManager
+
+<h3>Employees</h3>
+
+@if(employees == null)
+{
+    <p>Loading employees</p>
+}
+else{
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Birth Date</th>
+            <th>Position</th>
+            <th>IP Adress</th>
+            <th>IP Country Code</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (employees.Count() == 0)
+        {
+            <tr>
+                <td colspan="8" align="center">No Data Found</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var employee in employees)
+            {
+                <tr>
+                    <td>@employee.Name</td>
+                    <td>@employee.Surname</td>
+                    <td>@employee.BirthDate</td>
+                    <td>@employee.Position.PositionName</td>
+                    <td>@employee.IPAddress</td>
+                    <td>@employee.IPCountryCode</td>
+                    <td>
+                        <button class="btn btn-primary"
+                                    @onclick="(() => EditEmployeeRedirect(employee.Id))">
+                            <i class="oi oi-pencil"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+}
+
+
+<button @onclick="(() => AddEmployeeRedirect())" class="btn btn-primary">Create new employee</button>
+
+@code {
+
+    List<Employee>? employees;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await EmployeeService.GetAllEmployees();
+        employees = result.Data;
+    }
+
+
+    void EditEmployeeRedirect(int id)
+    {
+        NavigationManager.NavigateTo($"employee/{id}");
+    }
+
+    void AddEmployeeRedirect()
+    {
+        NavigationManager.NavigateTo("employee");
+    }
+
+}

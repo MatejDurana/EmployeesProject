@@ -23,9 +23,9 @@ namespace EmployeesProject.Server.Controllers
 		}
 
 		[HttpPost]
-		public async Task<ActionResult<Position>?> CreatePosition(Position position)
+		public async Task<ActionResult<Position>> AddPosition(Position position)
 		{
-			return Ok(await _positionService.CreatePosition(position));
+			return Ok(await _positionService.AddPosition(position));
 		}
 
 		[HttpGet("{id}")]
@@ -37,13 +37,24 @@ namespace EmployeesProject.Server.Controllers
 		[HttpPut("{id}")]
 		public async Task<ActionResult<Position>> UpdatePosition(int id, Position position)
         {
-            return Ok(await _positionService.UpdatePosition(id, position));
+			var result = await _positionService.UpdatePosition(id, position);
+
+            if (result == null)
+			{
+				return BadRequest(result);
+			}
+            return Ok(result);
         }
 		
 		[HttpDelete("{id}")]
 		public async Task<ActionResult<bool>> DeletePosition(int id)
         {
-            return Ok(await _positionService.DeletePosition(id));
+			var result = await _positionService.DeletePosition(id);
+			if(result == false)
+			{
+				return BadRequest();
+			}
+            return Ok();
         }
     }
 }

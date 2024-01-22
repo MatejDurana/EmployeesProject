@@ -16,9 +16,36 @@ namespace EmployeesProject.Server.Controllers
             _employeeService = employeeService;
         }
 
-        public async Task<List<Employee>> GetAll()
+        [HttpGet]
+        public async Task<ActionResult<ServiceResponse<List<Employee>>>> GetAll()
         {
-            return await _employeeService.GetAllEmployees();
+            return Ok(await _employeeService.GetAllEmployees());
         }
+
+        [HttpPost]
+        public async Task<ActionResult<ServiceResponse<Employee>>> AddEmployee(Employee employee)
+        {
+            return Ok(await _employeeService.AddEmployee(employee));
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ServiceResponse<Employee>>> GetEmployeeById(int id)
+        {
+            return Ok(await _employeeService.GetEmployeeById(id));
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<ServiceResponse<Employee>>> UpdateEmployee(Employee employee)
+        {
+            return Ok(await _employeeService.UpdateEmployee(employee));
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<ServiceResponse<bool>>> DeleteEmployee(int id)
+        {
+            return Ok(await _employeeService.DeleteEmployee(id));
+        }
+
+
     }
 }
