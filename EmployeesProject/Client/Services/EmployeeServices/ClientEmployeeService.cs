@@ -1,4 +1,5 @@
-﻿using EmployeesProject.Shared.Models;
+﻿using Azure;
+using EmployeesProject.Shared.Models;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,8 @@ namespace EmployeesProject.Client.Services.EmployeeServices
             {
                 var result = await _httpClient.PostAsJsonAsync("/api/employee", employee);
                 var serviceResponse = await result.Content.ReadFromJsonAsync<ServiceResponse<Employee>>();
+                if (serviceResponse == null || !serviceResponse.Success)
+                    throw new Exception("An error occurred while attempting to add the employee.");
                 return serviceResponse;
             }
             catch (Exception ex)
@@ -39,7 +42,10 @@ namespace EmployeesProject.Client.Services.EmployeeServices
         {
             try { 
                 var result = await _httpClient.DeleteAsync($"api/employee/{employeeId}");
-                return await result.Content.ReadFromJsonAsync<ServiceResponse<bool>>();
+                var serviceResponse = await result.Content.ReadFromJsonAsync<ServiceResponse<bool>>();
+                if (serviceResponse == null || !serviceResponse.Success)
+                    throw new Exception("An error occurred while attempting to delete the employee.");
+                return serviceResponse;
             }
             catch (Exception ex)
             {
@@ -51,8 +57,10 @@ namespace EmployeesProject.Client.Services.EmployeeServices
         {
             try
             {
-                var result = await _httpClient.GetFromJsonAsync<ServiceResponse<List<Employee>>>("/api/employee");
-                return result;
+                var serviceResponse = await _httpClient.GetFromJsonAsync<ServiceResponse<List<Employee>>>("/api/employee");
+                if (serviceResponse == null || !serviceResponse.Success)
+                    throw new Exception("An error occurred while attempting to get all the employees.");
+                return serviceResponse;
             }
             catch (Exception ex)
             {
@@ -64,7 +72,10 @@ namespace EmployeesProject.Client.Services.EmployeeServices
         {
             try
             {
-                return await _httpClient.GetFromJsonAsync<ServiceResponse<Employee>>($"/api/employee/{employeeId}");
+                var serviceResponse = await _httpClient.GetFromJsonAsync<ServiceResponse<Employee>>($"/api/employee/{employeeId}");
+                if (serviceResponse == null || !serviceResponse.Success)
+                    throw new Exception("An error occurred while attempting to get the employee.");
+                return serviceResponse;
             }
             catch (Exception ex)
             {
@@ -77,6 +88,11 @@ namespace EmployeesProject.Client.Services.EmployeeServices
             try { 
                 var result =  await _httpClient.PutAsJsonAsync("/api/employee", employee);
                 var serviceResponse = await result.Content.ReadFromJsonAsync<ServiceResponse<Employee>>();
+
+                Console.WriteLine(serviceResponse.Message);
+
+                if (serviceResponse == null || !serviceResponse.Success)
+                    throw new Exception("An error occurred while attempting to update the employee.");
                 return serviceResponse;
             }
             catch (Exception ex)

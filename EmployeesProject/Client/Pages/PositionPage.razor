@@ -4,7 +4,7 @@
 @inject IPositionService PositionService
 @inject NavigationManager NavigationManager
 
-@if (Id is null)
+@if (Id == null)
 {
     <PageTitle>Create a new position</PageTitle>
     <h3>Create a new position</h3>
@@ -43,10 +43,10 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        if (Id is not null)
+        if (Id != null)
         {
             var result = await PositionService.GetPositionById((int)Id);
-            if (result is not null)
+            if (result != null)
                 position = result;
             else
                 NavigationManager.NavigateTo("/position");
@@ -56,7 +56,7 @@ else
 
     async Task HandleSubmit()
     {
-        if (Id is null)
+        if (Id == null)
         {
             await PositionService.AddPosition(position);
         }

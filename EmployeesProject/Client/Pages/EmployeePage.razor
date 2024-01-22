@@ -1,11 +1,16 @@
 ﻿@page "/employee"
 @page "/employee/{id:int}"
 
+@using Blazored.Toast
+@using Blazored.Toast.Services
+@using Blazored.Toast.Configuration
+
 @inject IEmployeeService EmployeeService
 @inject IPositionService PositionService
 @inject NavigationManager NavigationManager
+@inject IToastService toastService
 
-@if (Id is null)
+@if (Id == null)
 {
     <PageTitle>Create a new employee</PageTitle>
     <h3>Create a new employee</h3>
@@ -16,56 +21,72 @@ else
     <h3>Edit @employee.Name @employee.Surname</h3>
 }
 
-<EditForm Model="employee" OnSubmit="HandleSubmit">
+<EditForm Model="employee" OnValidSubmit="HandleSubmit">
     <div>
         <label for="nameId">Name</label>
         <InputText id="nameId" @bind-Value="employee.Name" class="form-control" />
+        <ValidationMessage For="@(() => employee.Name)" />
     </div>
     <div>
         <label for="surnameId">Surname</label>
         <InputText id="surnameId" @bind-Value="employee.Surname" class="form-control" />
+        <ValidationMessage For="@(() => employee.Surname)" />
+
     </div>
     <div>
         <label for="birthDateId">Birth Date</label>
         <InputDate id="birthDateId" @bind-Value="employee.BirthDate" class="form-control" />
+        <ValidationMessage For="@(() => employee.BirthDate)" />
     </div>
     <div>
         <label for="positionId">Select position</label>
-        <InputSelect class="form-control" id="positionId" @bind-Value="@PositionId">
-            <option value="-1"></option>
+        <InputSelect class="form-control" id="positionId" @bind-Value="employee.PositionId">
+            <option value="null"></option>
             @foreach (var position in positions)
             {
                 <option value="@position.Id">@position.PositionName</option>
             }
         </InputSelect>
+        <ValidationMessage For="@(() => employee.PositionId)"/>
     </div>
     <div>
         <label for="ipAddressId">IP Address</label>
         <InputText id="ipAddressId" @bind-Value="employee.IPAddress" class="form-control" />
+        <ValidationMessage For="@(() => employee.IPAddress)" />
+
     </div>
     <div>
         <label for="ipCountryCodeId">IP Country Code</label>
         <InputText id="ipCountryCodeId" @bind-Value="employee.IPCountryCode" class="form-control" />
     </div>
-    <button type="submit" class="btn btn-primary">@btnText</button>
+    <button type="submit" disabled="@disabledBtns" class="btn btn-primary">@btnText</button>
+
+    <DataAnnotationsValidator />
+
 </EditForm>
 
 @if (Id != null)
 {
-    <button @onclick="(() => DeleteEmployee())" class="btn btn-danger">Delete position</button>
+    <br />
+    <button disabled="@disabledBtns" @onclick="(() => DeleteEmployee())" class="btn btn-danger">Delete position</button>
 }
+
+<BlazoredToasts SuccessIcon="fa fa-thumbs-up" ErrorIcon="error_outline" Position="ToastPosition.BottomRight" />
 
 @code {
     [Parameter]
     public int? Id { get; set; }
 
-    public int PositionId { get; set; }
-
+    bool disabledBtns = false;
     string btnText = string.Empty;
     List<Position> positions = new List<Position>();
 
-    [Parameter]
-    public Employee employee { get; set; } = new Employee();
+    [Parameter, EditorRequired]
+    public Employee employee { get; set; } = new Employee()
+    {
+        BirthDate = new DateTime(1990, 1, 1),
+        Position = new Position()
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -77,12 +98,12 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        if (Id is not null)
+        if (Id != null)
         {
             var result = await EmployeeService.GetEmployeeById((int)Id);
-            if (result is not null){
+            if (result != null && result.Data != null)
+            {
                 employee = result.Data;
-                PositionId = employee.Position.Id;
             }
             else
                 NavigationManager.NavigateTo("/employee");
@@ -92,28 +113,63 @@ else
 
     async Task HandleSubmit()
     {
-        var position = positions.FirstOrDefault(p => p.Id == PositionId);
+        disabledBtns = true;
+        if (employee.PositionId == null)
+        {
+            HandleError("You must choose position");
+            return;
+        }
+        var position = positions.FirstOrDefault(p => p.Id == employee.PositionId);
         if(position == null)
         {
-            Console.WriteLine("You must choose position");
+            HandleError("The position you set doesn't exist.");
             return;
         }
         else
-        {
             employee.Position = position;
-        }
-        if (Id is null)
+        if (Id == null)
         {
-            await EmployeeService.AddEmployee(employee);
+            var response = await EmployeeService.AddEmployee(employee);
+            await HandleResponse(response);
         }
         else
         {
-            await EmployeeService.UpdateEmployee(employee);
+            var response = await EmployeeService.UpdateEmployee(employee);
+            await HandleResponse(response);
         }
+        disabledBtns = false;
     }
 
     async Task DeleteEmployee()
     {
-        await EmployeeService.DeleteEmployee(employee.Id);
+        disabledBtns = true;
+        var response = await EmployeeService.DeleteEmployee(employee.Id);
+        await HandleResponse(response);
+        disabledBtns = false;
     }
+
+    async Task HandleResponse<T>(ServiceResponse<T> response)
+    {
+        if (response.Success)
+        {
+            await HandleSuccess(response.Message);
+        }
+        else
+        {
+            toastService.ShowError(response.Message);
+        }
+    }
+
+    async Task HandleSuccess(string message)
+    {
+        toastService.ShowSuccess(message);
+        await Task.Delay(2000);
+        NavigationManager.NavigateTo("/employees");
+    }
+    void HandleError(string message)
+    {
+        toastService.ShowError(message);
+    }
+
+
 }

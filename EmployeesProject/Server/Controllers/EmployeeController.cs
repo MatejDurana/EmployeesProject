@@ -1,4 +1,5 @@
-﻿using EmployeesProject.Server.Services.EmployeeServices;
+﻿using Azure;
+using EmployeesProject.Server.Services.EmployeeServices;
 using EmployeesProject.Shared.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,31 +20,36 @@ namespace EmployeesProject.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<ServiceResponse<List<Employee>>>> GetAll()
         {
-            return Ok(await _employeeService.GetAllEmployees());
+            var response = await _employeeService.GetAllEmployees();
+            return response.Success ? Ok(response) : StatusCode(500, response);
         }
 
         [HttpPost]
         public async Task<ActionResult<ServiceResponse<Employee>>> AddEmployee(Employee employee)
         {
-            return Ok(await _employeeService.AddEmployee(employee));
+            var response = await _employeeService.AddEmployee(employee);
+            return response.Success ? Ok(response) : StatusCode(500, response);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ServiceResponse<Employee>>> GetEmployeeById(int id)
         {
-            return Ok(await _employeeService.GetEmployeeById(id));
+            var response = await _employeeService.GetEmployeeById(id);
+            return response.Success ? Ok(response) : StatusCode(500, response);
         }
 
         [HttpPut]
         public async Task<ActionResult<ServiceResponse<Employee>>> UpdateEmployee(Employee employee)
         {
-            return Ok(await _employeeService.UpdateEmployee(employee));
+            var response = await _employeeService.UpdateEmployee(employee);
+            return response.Success ? Ok(response) : StatusCode(500, response);
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<ServiceResponse<bool>>> DeleteEmployee(int id)
         {
-            return Ok(await _employeeService.DeleteEmployee(id));
+            var response = await _employeeService.DeleteEmployee(id);
+            return response.Success ? Ok(response) : StatusCode(500, response);
         }
 
 
