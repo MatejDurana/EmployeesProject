@@ -20,7 +20,7 @@ namespace EmployeesProject.Server.Services.PositionServices
 			return position;
 		}
 
-        public async Task<ServiceResponse<bool>> AddPositionFromJson(string fileContent)
+        public async Task<ServiceResponse<bool>> AddPositionsFromJson(string fileContent)
         {
             ServiceResponse<bool> serviceResponse = new ServiceResponse<bool>();
             List<Position> positions = new List<Position>();
@@ -46,7 +46,7 @@ namespace EmployeesProject.Server.Services.PositionServices
 
                 foreach (var position in positions)
                 {
-                    if(!await PositionExists(position))
+                    if(await PositionExists(position.PositionName) == null)
                     {
                         filteredPositions.Add(position);
                     }
@@ -64,9 +64,11 @@ namespace EmployeesProject.Server.Services.PositionServices
             return serviceResponse;
         }
 
-        public async Task<bool> PositionExists(Position position)
+        public async Task<int?> PositionExists(string positionName)
         {
-            return await _context.Positions.AnyAsync(e => e.PositionName == position.PositionName);
+            var position = await _context.Positions.FirstOrDefaultAsync(e => e.PositionName == positionName);
+
+            return position?.Id;
         }
 
         public async Task<bool> DeletePosition(int id)
@@ -76,6 +78,13 @@ namespace EmployeesProject.Server.Services.PositionServices
             {
 				return false;
             }
+
+            bool hasEmployees = await _context.Employees.AnyAsync(e => e.PositionId == dbPosition.Id);
+            if (hasEmployees)
+            {
+                return false;
+            }
+
             _context.Remove(dbPosition);
             await _context.SaveChangesAsync();
             return true;

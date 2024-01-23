@@ -43,6 +43,32 @@ namespace EmployeesProject.Client.Services.EmployeeServices
             }
         }
 
+        public async Task<ServiceResponse<bool>> AddEmployeesFromJson(string fileContent)
+        {
+            try
+            {
+                var result = await _httpClient.PostAsJsonAsync("/api/employee/importFromJson", fileContent);
+
+                var serviceResponse = await result.Content.ReadFromJsonAsync<ServiceResponse<bool>>();
+                if (serviceResponse == null || !serviceResponse.Success)
+                {
+                    if (serviceResponse != null && !serviceResponse.Hidden)
+                    {
+                        throw new Exception(serviceResponse.Message);
+                    }
+                    else
+                    {
+                        throw new Exception("Import failed. Please try again.");
+                    }
+                }
+                return serviceResponse;
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResponse<bool> { Message = ex.Message, Success = false };
+            }
+        }
+
         public async Task<ServiceResponse<bool>> DeleteEmployee(int employeeId)
         {
             try { 
@@ -92,9 +118,8 @@ namespace EmployeesProject.Client.Services.EmployeeServices
         {
             try { 
                 var result =  await _httpClient.PutAsJsonAsync("/api/employee", employee);
-                var serviceResponse = await result.Content.ReadFromJsonAsync<ServiceResponse<Employee>>();
 
-                Console.WriteLine(serviceResponse.Message);
+                var serviceResponse = await result.Content.ReadFromJsonAsync<ServiceResponse<Employee>>();
 
                 if (serviceResponse == null || !serviceResponse.Success)
                 {

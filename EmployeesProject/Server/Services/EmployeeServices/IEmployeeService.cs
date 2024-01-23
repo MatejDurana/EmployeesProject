@@ -15,5 +15,9 @@ namespace EmployeesProject.Server.Services.EmployeeServices
 		Task<ServiceResponse<Employee>> UpdateEmployee(Employee employee);
 		Task<ServiceResponse<bool>> DeleteEmployee(int employeeId);
 		Task<bool> EmployeeExists(Employee employee);
+        Task<ServiceResponse<bool>> AddEmployeesFromJson(string fileContent);
+		bool JsonEmployeeHasRequiredAttributes(dynamic employee);
+
+
     }
 }

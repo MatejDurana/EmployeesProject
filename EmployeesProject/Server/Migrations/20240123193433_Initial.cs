@@ -30,12 +30,12 @@ namespace EmployeesProject.Server.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Surname = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Surname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     BirthDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PositionId = table.Column<int>(type: "int", nullable: false),
-                    IPAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IPCountryCode = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    PositionId = table.Column<int>(type: "int", maxLength: 50, nullable: true),
+                    IPAddress = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    IPCountryCode = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -44,8 +44,7 @@ namespace EmployeesProject.Server.Migrations
                         name: "FK_Employees_Positions_PositionId",
                         column: x => x.PositionId,
                         principalTable: "Positions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(

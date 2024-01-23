@@ -52,6 +52,12 @@ namespace EmployeesProject.Server.Controllers
             return response.Success ? Ok(response) : StatusCode(500, response);
         }
 
+        [Route("importFromJson")]
+        [HttpPost]
+        public async Task<ActionResult<ServiceResponse<bool>>> AddEmployeesFromJson([FromBody] string fileContent)
+        {
+            return Ok(await _employeeService.AddEmployeesFromJson(fileContent));
+        }
 
     }
 }

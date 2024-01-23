@@ -8,7 +8,7 @@ namespace EmployeesProject.Client.Services.PositionServices
 		Task AddPosition(Position position);
 		Task<Position?> GetPositionById(int id);
 		Task UpdatePosition(int id, Position position);
-		Task DeletePosition(int id);
+		Task<string> DeletePosition(int id);
 
 		Task<ServiceResponse<bool>> AddPositionsFromJson(string fileContent);
 

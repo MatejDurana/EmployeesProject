@@ -41,10 +41,19 @@ namespace EmployeesProject.Client.Services.PositionServices
             _navigatorManager.NavigateTo("positions");
         }
 
-        public async Task DeletePosition(int id)
+        public async Task<string> DeletePosition(int id)
         {
-            await _httpClient.DeleteAsync($"/api/position/{id}");
+            try
+            {
+                var result = await _httpClient.DeleteAsync($"/api/position/{id}");
+            }
+            catch (Exception)
+            {
+                return "Position cannot be deleted.";
+            }
+            
             _navigatorManager.NavigateTo("positions");
+            return "";
         }
 
         public async Task<ServiceResponse<bool>> AddPositionsFromJson(string fileContent)

@@ -1,13 +1,16 @@
-﻿using EmployeesProject.Client.Pages;
-using EmployeesProject.Server.Data;
+﻿using EmployeesProject.Server.Data;
 using EmployeesProject.Server.Services.IPAddressServices;
+using EmployeesProject.Server.Services.PositionServices;
 using EmployeesProject.Shared.Models;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 
@@ -17,11 +20,13 @@ namespace EmployeesProject.Server.Services.EmployeeServices
     {
         private readonly DataContext _context;
         private readonly IPAddressService _ipAddressService;
+        private readonly IPositionService _positionService;
 
-        public EmployeeService(DataContext dataContext, IPAddressServices.IPAddressService ipAddressService)
+        public EmployeeService(DataContext dataContext, IPAddressService ipAddressService, IPositionService positionService)
         {
             _context = dataContext;
             _ipAddressService = ipAddressService;
+            _positionService = positionService;
         }
 
         public async Task<ServiceResponse<Employee>> AddEmployee(Employee employee)
@@ -70,8 +75,7 @@ namespace EmployeesProject.Server.Services.EmployeeServices
             var serviceResponse = new ServiceResponse<List<Employee>>();
             try
             {
-                var dbCharacters = await _context.Employees.Include(e => e.Position).ToListAsync();
-                serviceResponse.Data = dbCharacters;
+                serviceResponse.Data = await _context.Employees.Include(e => e.Position).ToListAsync();
                 serviceResponse.Message = "Employee data obtained successfully.";
             }
             catch (Exception ex)
@@ -171,5 +175,95 @@ namespace EmployeesProject.Server.Services.EmployeeServices
             return serviceResponse;
         }
 
+
+        public async Task<ServiceResponse<bool>> AddEmployeesFromJson(string fileContent)
+        {
+            ServiceResponse<bool> serviceResponse = new ServiceResponse<bool>();
+            List<Employee> employees = new List<Employee>();
+
+            try
+            {
+                dynamic? employeeData = JsonConvert.DeserializeObject(fileContent);
+
+                if(employeeData == null || employeeData.employees == null || employeeData.employees.Count == 0)
+                {
+                    serviceResponse.Hidden = false;
+                    throw new Exception("Invalid or empty employee data.");
+                }
+
+                foreach (var employee in employeeData.employees)
+                {
+                    if (JsonEmployeeHasRequiredAttributes(employee))
+                    {
+                        employees.Add(new Employee()
+                        {
+                            Name = employee.Name,
+                            Surname = employee.Surname,
+                            BirthDate = DateTime.Parse(employee.BirthDate.ToString()), 
+                            Position = new Position() { PositionName = employee.Position },
+                            IPAddress = employee.IpAddress,
+                        });
+                    }
+                    else
+                    {
+                        serviceResponse.Hidden = false;
+                        throw new Exception("Invalid employee data format. Missing required attributes.");
+                    }
+                }
+
+                List<Employee> filteredEmployees = new List<Employee>();
+
+                foreach (var employee in employees)
+                {
+                    
+                    if (!await EmployeeExists(employee))
+                    {
+                        int? positionId = await _positionService.PositionExists(employee.Position.PositionName);
+                        if (positionId != null)
+                        {
+                            employee.PositionId = positionId;
+                        }
+                        employee.Position = null;
+
+                        var ipAddressServiceResponse = await _ipAddressService.GetCountryCodeFromIPAddress(employee.IPAddress);
+                        if (!ipAddressServiceResponse.Success)
+                        {
+                            serviceResponse.Hidden = false;
+                            throw new Exception($"IP address {employee.IPAddress} cannot be processed.");
+                        }
+                        employee.IPCountryCode = ipAddressServiceResponse.Data!;
+
+                        filteredEmployees.Add(employee);
+                    }
+                }
+
+                
+                _context.Employees.AddRange(filteredEmployees);
+                _context.SaveChanges();
+
+                serviceResponse.Message = $"Employee import was successful.";
+                if(filteredEmployees.Count > 0)
+                {
+                    serviceResponse.Message += $" Added {filteredEmployees.Count} new employees.";
+                }
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+
+            return serviceResponse;
+        }
+        public bool JsonEmployeeHasRequiredAttributes(dynamic employee)
+        {
+            return employee != null &&
+                   employee.Name != null &&
+                   employee.Surname != null &&
+                   employee.BirthDate != null &&
+                   employee.Position != null &&
+                   employee.IpAddress != null;
+        }
     }
 }

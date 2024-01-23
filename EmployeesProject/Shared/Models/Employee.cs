@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ namespace EmployeesProject.Shared.Models
         public string Name { get; set; }
 
         [Required(ErrorMessage ="Employee surname is required")]
-        public string Surname { get; set; }
+        public string? Surname { get; set; }
 
         [Required(ErrorMessage ="Employee birth date is required")]
         [Range(typeof(DateTime), "1900-01-01", "2100-12-31", ErrorMessage = "The birth date must be between {1} and {2}.")]
@@ -33,9 +34,10 @@ namespace EmployeesProject.Shared.Models
 
 
         [Required(ErrorMessage = "Employee position is required")]
-        public int? PositionId { get; set; }
+        public int? PositionId { get; set; } = null;
 
-        public Position Position { get; set; }
+        [ForeignKey("PositionId")]
+        public Position? Position { get; set; } = null;
 
         [Required(ErrorMessage = "Employee IP address is required")]
         [IPAddress]

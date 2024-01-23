@@ -1,16 +1,26 @@
 ﻿@page "/employees-import"
+@inject IEmployeeService EmployeeService
+@inject IToastService toastService
+@inject NavigationManager NavigationManager
 
 <h3>Employees Import</h3>
 
-<InputFile OnChange="HandleFileChange" />
+<InputFile OnChange="HandleFileChange" accept=".json" />
 
 @if (fileContent != null)
 {
     <div>
+        <br />
+        <h3>File successfully loaded</h3>
+        <button class="btn btn-primary" @onclick="ImportContent">Import this employees</button>
+        <br />
+        <br />
         <h4>File Content:</h4>
         <pre>@fileContent</pre>
     </div>
 }
+
+<BlazoredToasts SuccessIcon="fa fa-thumbs-up" ErrorIcon="error_outline" Position="ToastPosition.BottomRight" />
 
 @code {
     private string fileContent;
@@ -29,10 +39,21 @@
                 }
             }
         }
+    }
+
+    async Task ImportContent()
+    {
+        var serviceResponse = await EmployeeService.AddEmployeesFromJson(fileContent);
+        if (serviceResponse.Success)
+        {
+            toastService.ShowSuccess(serviceResponse.Message);
+            await Task.Delay(2000);
+            NavigationManager.NavigateTo("/employees");
+        }
         else
         {
-            // Handle the case when no file is selected
-            fileContent = null;
+            toastService.ShowError(serviceResponse.Message);
         }
     }
+
 }

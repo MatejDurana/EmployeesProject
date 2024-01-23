@@ -61,7 +61,7 @@ namespace EmployeesProject.Server.Controllers
 		[HttpPost]
 		public async Task<ActionResult<ServiceResponse<bool>>> AddPositionsFromJson([FromBody] string fileContent)
 		{
-            return Ok(await _positionService.AddPositionFromJson(fileContent));
+            return Ok(await _positionService.AddPositionsFromJson(fileContent));
 		}
 
     }

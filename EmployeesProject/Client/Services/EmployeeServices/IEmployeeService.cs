@@ -17,6 +17,7 @@ namespace EmployeesProject.Client.Services.EmployeeServices
 
 		Task<ServiceResponse<Employee>> UpdateEmployee(Employee employee);
 		Task<ServiceResponse<bool>> DeleteEmployee(int employeeId);
+		Task<ServiceResponse<bool>> AddEmployeesFromJson(string fileContent);
 
 	}
 }

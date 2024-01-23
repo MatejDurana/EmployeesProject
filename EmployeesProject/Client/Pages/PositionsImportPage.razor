@@ -43,7 +43,7 @@
 
     }
 
-    async void ImportContent()
+    async Task ImportContent()
     {
         var serviceResponse = await PositionService.AddPositionsFromJson(fileContent);
         if (serviceResponse.Success)

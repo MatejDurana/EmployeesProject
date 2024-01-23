@@ -13,7 +13,7 @@
         <div class="col-md-6">
             <strong>IP address:</strong> @showedEmployee.IPAddress <br />
             <strong>IP country code:</strong> @showedEmployee.IPCountryCode <br />
-            <strong>Position:</strong> @showedEmployee.Position.PositionName <br />
+            <strong>Position:</strong> @(showedEmployee?.Position?.PositionName ?? "Not specified") <br />
         </div>
     </div>
     <div class="float-end">
