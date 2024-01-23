@@ -1,7 +1,22 @@
 ﻿@page "/"
+@inject NavigationManager NavigationManager
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Employees Project</h1>
 
-Welcome to your new app.
+<button @onclick="(() => EmployeesRedirect())" class="btn btn-primary">Employees list</button>
+<button @onclick="(() => PositionsRedirect())" class="btn btn-primary">Positions list</button>
+
+
+@code{
+    void EmployeesRedirect()
+    {
+        NavigationManager.NavigateTo("employees");
+    }
+
+    void PositionsRedirect()
+    {
+        NavigationManager.NavigateTo("positions");
+    }
+}

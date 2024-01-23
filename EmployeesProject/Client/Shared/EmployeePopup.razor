@@ -1,0 +1,41 @@
+﻿@using Blazored.Modal
+@using Blazored.Modal.Services
+@inject NavigationManager NavigationManager
+
+
+<div>
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <strong>Name:</strong> @showedEmployee.Name <br />
+            <strong>Surname:</strong> @showedEmployee.Surname <br />
+            <strong>Birth date:</strong> @showedEmployee.BirthDate.ToShortDateString() <br />
+        </div>
+        <div class="col-md-6">
+            <strong>IP address:</strong> @showedEmployee.IPAddress <br />
+            <strong>IP country code:</strong> @showedEmployee.IPCountryCode <br />
+            <strong>Position:</strong> @showedEmployee.Position.PositionName <br />
+        </div>
+    </div>
+    <div class="float-end">
+        <button class="btn btn-primary"
+                @onclick="(() => EditEmployeeRedirect(showedEmployee.Id))">
+                Edit employee
+            <i class="oi oi-pencil"></i>
+        </button>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    [Parameter] public Employee showedEmployee { get; set; } = new();
+
+    private async Task Close() => await BlazoredModal.CloseAsync();
+
+
+    void EditEmployeeRedirect(int id)
+    {
+        NavigationManager.NavigateTo($"employee/{id}");
+    }
+
+}

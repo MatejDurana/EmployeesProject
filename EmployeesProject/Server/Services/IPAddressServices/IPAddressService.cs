@@ -22,7 +22,7 @@ namespace EmployeesProject.Server.Services.IPAddressServices
             try
             {
                 HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
-
+                await Console.Out.WriteLineAsync(response.Content.ToString());
                 if (response.IsSuccessStatusCode)
                 {
                     string responseContent = await response.Content.ReadAsStringAsync();
@@ -44,6 +44,7 @@ namespace EmployeesProject.Server.Services.IPAddressServices
                 }
                 else
                 {
+                    await Console.Out.WriteLineAsync(response.StatusCode.ToString());
                     throw new Exception($"Error: {response.StatusCode}");
                 }
             }

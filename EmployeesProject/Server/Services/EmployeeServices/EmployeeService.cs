@@ -36,7 +36,9 @@ namespace EmployeesProject.Server.Services.EmployeeServices
 
                 var ipAddressServiceResponse = await _ipAddressService.GetCountryCodeFromIPAddress(employee.IPAddress);
                 if(!ipAddressServiceResponse.Success) {
-                    throw new Exception(ipAddressServiceResponse.Message);
+                    serviceResponse.Hidden = false;
+                    //ipAddressServiceResponse.Message
+                    throw new Exception("This IP address cannot be processed. Please try another.");
                 }
                 employee.IPCountryCode = ipAddressServiceResponse.Data!;
 
@@ -119,7 +121,9 @@ namespace EmployeesProject.Server.Services.EmployeeServices
                 var ipAddressServiceResponse = await _ipAddressService.GetCountryCodeFromIPAddress(employee.IPAddress);
                 if (!ipAddressServiceResponse.Success)
                 {
-                    throw new Exception(ipAddressServiceResponse.Message);
+                    serviceResponse.Hidden = false;
+                    //ipAddressServiceResponse.Message
+                    throw new Exception("This IP address cannot be processed. Please try another.");
                 }
                 dbEmployee.IPCountryCode = ipAddressServiceResponse.Data!;
          

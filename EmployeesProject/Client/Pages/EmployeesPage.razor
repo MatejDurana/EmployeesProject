@@ -1,4 +1,7 @@
 ﻿@page "/employees"
+
+@using Blazored.Modal
+@using Blazored.Modal.Services
 @inject IEmployeeService EmployeeService
 @inject NavigationManager NavigationManager
 
@@ -9,23 +12,18 @@
     <p>Loading employees</p>
 }
 else{
-<table class="table">
+<table class="table w-50">
     <thead>
         <tr>
             <th>Name</th>
             <th>Surname</th>
-            <th>Birth Date</th>
-            <th>Position</th>
-            <th>IP Adress</th>
-            <th>IP Country Code</th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
         @if (employees.Count() == 0)
         {
             <tr>
-                <td colspan="8" align="center">No Employees Found</td>
+                <td colspan="2" align="center">No Employees Found</td>
             </tr>
         }
         else
@@ -33,17 +31,11 @@ else{
             @foreach (var employee in employees)
             {
                 <tr>
-                    <td>@employee.Name</td>
-                    <td>@employee.Surname</td>
-                    <td>@employee.BirthDate</td>
-                    <td>@employee.Position.PositionName</td>
-                    <td>@employee.IPAddress</td>
-                    <td>@employee.IPCountryCode</td>
                     <td>
-                        <button class="btn btn-primary"
-                                    @onclick="(() => EditEmployeeRedirect(employee.Id))">
-                            <i class="oi oi-pencil"></i>
-                        </button>
+                        <span role="button" @onclick="(() => ShowEmployeePopup(employee))"> @employee.Name </span>
+                    </td>
+                    <td>
+                        <span role="button" @onclick="(() => ShowEmployeePopup(employee))"> @employee.Surname </span>
                     </td>
                 </tr>
             }
@@ -54,8 +46,20 @@ else{
 
 
 <button @onclick="(() => AddEmployeeRedirect())" class="btn btn-primary">Create new employee</button>
+<button @onclick="(() => ImportEmployeeRedirect())" class="btn btn-primary">Import new employees</button>
+
 
 @code {
+    [CascadingParameter] public IModalService Modal { get; set; }
+
+    private async Task ShowEmployeePopup(Employee employee)
+    {
+        var parameters = new ModalParameters()
+        .Add(nameof(EmployeePopup.showedEmployee), employee);
+
+        Modal.Show<EmployeePopup>("Employee detail", parameters);
+    }
+   
 
     List<Employee>? employees;
 
@@ -65,15 +69,12 @@ else{
         employees = result.Data;
     }
 
-
-    void EditEmployeeRedirect(int id)
-    {
-        NavigationManager.NavigateTo($"employee/{id}");
-    }
-
     void AddEmployeeRedirect()
     {
         NavigationManager.NavigateTo("employee");
     }
-
+    void ImportEmployeeRedirect()
+    {
+        NavigationManager.NavigateTo("employees-import");
+    }
 }

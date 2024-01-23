@@ -97,7 +97,13 @@ namespace EmployeesProject.Client.Services.EmployeeServices
                 Console.WriteLine(serviceResponse.Message);
 
                 if (serviceResponse == null || !serviceResponse.Success)
+                {
+                    if (serviceResponse != null && !serviceResponse.Hidden)
+                    {
+                        throw new Exception(serviceResponse.Message);
+                    }
                     throw new Exception("An error occurred while attempting to update the employee.");
+                }
                 return serviceResponse;
             }
             catch (Exception ex)
