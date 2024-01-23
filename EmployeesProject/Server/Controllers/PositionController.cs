@@ -56,5 +56,13 @@ namespace EmployeesProject.Server.Controllers
 			}
             return Ok();
         }
+
+		[Route("importFromJson")]
+		[HttpPost]
+		public async Task<ActionResult<ServiceResponse<bool>>> AddPositionsFromJson([FromBody] string fileContent)
+		{
+            return Ok(await _positionService.AddPositionFromJson(fileContent));
+		}
+
     }
 }

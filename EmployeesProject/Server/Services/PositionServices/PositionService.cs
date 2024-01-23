@@ -1,6 +1,7 @@
 ﻿using EmployeesProject.Server.Data;
 using EmployeesProject.Shared.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace EmployeesProject.Server.Services.PositionServices
 {
@@ -18,6 +19,55 @@ namespace EmployeesProject.Server.Services.PositionServices
 			await _context.SaveChangesAsync();
 			return position;
 		}
+
+        public async Task<ServiceResponse<bool>> AddPositionFromJson(string fileContent)
+        {
+            ServiceResponse<bool> serviceResponse = new ServiceResponse<bool>();
+            List<Position> positions = new List<Position>();
+
+            try
+            {
+                using (JsonDocument doc = JsonDocument.Parse(fileContent))
+                {
+                    JsonElement root = doc.RootElement;
+
+                    if (root.TryGetProperty("positions", out JsonElement positionsElement))
+                    {
+                        positions = positionsElement.EnumerateArray().Select(x => new Position() { PositionName = x.GetString() }).Distinct().ToList();
+                    }
+                    else
+                    {
+                        serviceResponse.Hidden = false;
+                        throw new Exception("The 'positions' parameter is not found or is not an array in the JSON file.");
+                    }
+                }
+
+                List<Position> filteredPositions = new List<Position>();
+
+                foreach (var position in positions)
+                {
+                    if(!await PositionExists(position))
+                    {
+                        filteredPositions.Add(position);
+                    }
+                }
+
+                _context.Positions.AddRange(filteredPositions);
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+
+            return serviceResponse;
+        }
+
+        public async Task<bool> PositionExists(Position position)
+        {
+            return await _context.Positions.AnyAsync(e => e.PositionName == position.PositionName);
+        }
 
         public async Task<bool> DeletePosition(int id)
         {
@@ -44,6 +94,8 @@ namespace EmployeesProject.Server.Services.PositionServices
 			}
 			throw new Exception("Position not found");
         }
+
+   
 
         public async Task<Position?> UpdatePosition(int id, Position position)
         {

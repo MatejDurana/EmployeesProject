@@ -10,5 +10,7 @@ namespace EmployeesProject.Client.Services.PositionServices
 		Task UpdatePosition(int id, Position position);
 		Task DeletePosition(int id);
 
+		Task<ServiceResponse<bool>> AddPositionsFromJson(string fileContent);
+
     }
 }

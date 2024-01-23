@@ -56,13 +56,13 @@ namespace EmployeesProject.Server.Services.EmployeeServices
             }
             return serviceResponse;
         }
-
-        private async Task<bool> EmployeeExists(Employee employee)
+      
+        public async Task<bool> EmployeeExists(Employee employee)
         {
-            return await _context.Employees.AnyAsync(e =>
-                e.Name == employee.Name &&
-                e.Surname == employee.Surname &&
-                e.BirthDate == employee.BirthDate);
+             return await _context.Employees.AnyAsync(e =>
+                 e.Name == employee.Name &&
+                 e.Surname == employee.Surname &&
+                 e.BirthDate == employee.BirthDate);
         }
 
         public async Task<ServiceResponse<List<Employee>>> GetAllEmployees()
@@ -170,5 +170,6 @@ namespace EmployeesProject.Server.Services.EmployeeServices
 
             return serviceResponse;
         }
+
     }
 }

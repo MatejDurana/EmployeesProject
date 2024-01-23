@@ -14,6 +14,6 @@ namespace EmployeesProject.Server.Services.EmployeeServices
 		Task<ServiceResponse<Employee>> GetEmployeeById(int employeeId);
 		Task<ServiceResponse<Employee>> UpdateEmployee(Employee employee);
 		Task<ServiceResponse<bool>> DeleteEmployee(int employeeId);
-
+		Task<bool> EmployeeExists(Employee employee);
     }
 }

@@ -46,7 +46,7 @@ else{
 
 
 <button @onclick="(() => AddEmployeeRedirect())" class="btn btn-primary">Create new employee</button>
-<button @onclick="(() => ImportEmployeeRedirect())" class="btn btn-primary">Import new employees</button>
+<button @onclick="(() => ImportEmployeesRedirect())" class="btn btn-primary">Import new employees</button>
 
 
 @code {
@@ -73,7 +73,7 @@ else{
     {
         NavigationManager.NavigateTo("employee");
     }
-    void ImportEmployeeRedirect()
+    void ImportEmployeesRedirect()
     {
         NavigationManager.NavigateTo("employees-import");
     }

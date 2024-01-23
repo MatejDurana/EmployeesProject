@@ -1,0 +1,61 @@
+﻿@page "/positions-import"
+@inject IPositionService PositionService
+@inject IToastService toastService
+@inject NavigationManager NavigationManager
+
+<h3>Positions Import</h3>
+
+<InputFile OnChange="HandleFileChange" accept=".json"/>
+
+@if (fileContent != null)
+{
+    <div>
+        <br />
+        <h3>File successfully loaded</h3>
+        <button class="btn btn-primary" @onclick="ImportContent">Import this positions</button>
+        <br />
+        <br />
+        <h4>File Content:</h4> 
+        <pre>@fileContent</pre>
+    </div>
+}
+
+<BlazoredToasts SuccessIcon="fa fa-thumbs-up" ErrorIcon="error_outline" Position="ToastPosition.BottomRight" />
+
+@code {
+    private string fileContent;
+
+    private async Task HandleFileChange(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file != null)
+        {
+
+            using (var stream = file.OpenReadStream())
+            {
+                using (var reader = new StreamReader(stream))
+                {
+                    fileContent = await reader.ReadToEndAsync();
+                }
+            }
+        }
+
+    }
+
+    async void ImportContent()
+    {
+        var serviceResponse = await PositionService.AddPositionsFromJson(fileContent);
+        if (serviceResponse.Success)
+        {
+            toastService.ShowSuccess(serviceResponse.Message);
+            await Task.Delay(2000);
+            NavigationManager.NavigateTo("/positions");
+        }
+        else
+        {
+            toastService.ShowError(serviceResponse.Message);
+        }
+    }
+
+}

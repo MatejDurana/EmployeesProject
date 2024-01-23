@@ -1,11 +1,13 @@
-﻿using EmployeesProject.Shared.Models;
+﻿using Azure;
+using EmployeesProject.Shared.Models;
 using Microsoft.AspNetCore.Components;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
 
 namespace EmployeesProject.Client.Services.PositionServices
 {
-	public class ClientPositionService : IPositionService
+    public class ClientPositionService : IPositionService
 	{
         private readonly HttpClient _httpClient;
         private readonly NavigationManager _navigatorManager;
@@ -43,6 +45,37 @@ namespace EmployeesProject.Client.Services.PositionServices
         {
             await _httpClient.DeleteAsync($"/api/position/{id}");
             _navigatorManager.NavigateTo("positions");
+        }
+
+        public async Task<ServiceResponse<bool>> AddPositionsFromJson(string fileContent)
+        {
+            var response = new ServiceResponse<bool>();
+
+            try
+            {
+                var result = await _httpClient.PostAsJsonAsync("/api/position/importFromJson", fileContent);
+
+                var controllerResponse = await result.Content.ReadFromJsonAsync<ServiceResponse<bool>>();
+                if (controllerResponse == null || !controllerResponse.Success)
+                {
+                    if (controllerResponse != null && !controllerResponse.Hidden)
+                    {
+                        throw new Exception(controllerResponse.Message);
+                    }
+                    else
+                    {
+                        throw new Exception("Import failed. Please try again.");
+                    }
+                }
+                response.Message = "Import successful.";
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+            
+            return response;
         }
     }
 }

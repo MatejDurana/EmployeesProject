@@ -1,0 +1,38 @@
+﻿@page "/employees-import"
+
+<h3>Employees Import</h3>
+
+<InputFile OnChange="HandleFileChange" />
+
+@if (fileContent != null)
+{
+    <div>
+        <h4>File Content:</h4>
+        <pre>@fileContent</pre>
+    </div>
+}
+
+@code {
+    private string fileContent;
+
+    private async Task HandleFileChange(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file != null)
+        {
+            using (var stream = file.OpenReadStream())
+            {
+                using (var reader = new StreamReader(stream))
+                {
+                    fileContent = await reader.ReadToEndAsync();
+                }
+            }
+        }
+        else
+        {
+            // Handle the case when no file is selected
+            fileContent = null;
+        }
+    }
+}

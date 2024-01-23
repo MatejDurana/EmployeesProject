@@ -9,5 +9,7 @@ namespace EmployeesProject.Server.Services.PositionServices
         Task<Position?> GetPositionById(int id);
         Task<Position?> UpdatePosition(int id, Position position);
         Task<bool> DeletePosition(int id);
+        Task<ServiceResponse<bool>> AddPositionFromJson(string fileContent);
+        Task<bool> PositionExists(Position position);
     }
 }
