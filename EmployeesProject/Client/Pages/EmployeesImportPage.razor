@@ -12,7 +12,7 @@
     <div>
         <br />
         <h3>File successfully loaded</h3>
-        <button class="btn btn-primary" @onclick="ImportContent">Import this employees</button>
+        <button disabled="@disabledBtns" class="btn btn-primary" @onclick="ImportContent">Import this employees</button>
         <br />
         <br />
         <h4>File Content:</h4>
@@ -23,6 +23,7 @@
 <BlazoredToasts SuccessIcon="fa fa-thumbs-up" ErrorIcon="error_outline" Position="ToastPosition.BottomRight" />
 
 @code {
+    private bool disabledBtns = false;
     private string fileContent;
 
     private async Task HandleFileChange(InputFileChangeEventArgs e)
@@ -43,6 +44,7 @@
 
     async Task ImportContent()
     {
+        disabledBtns = true;
         var serviceResponse = await EmployeeService.AddEmployeesFromJson(fileContent);
         if (serviceResponse.Success)
         {
@@ -54,6 +56,7 @@
         {
             toastService.ShowError(serviceResponse.Message);
         }
+        disabledBtns = false;
     }
 
 }

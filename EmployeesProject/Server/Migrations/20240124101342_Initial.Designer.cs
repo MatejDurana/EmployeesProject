@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EmployeesProject.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240123193433_Initial")]
+    [Migration("20240124101342_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -52,7 +52,6 @@ namespace EmployeesProject.Server.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<int?>("PositionId")
-                        .HasMaxLength(50)
                         .HasColumnType("int");
 
                     b.Property<string>("Surname")

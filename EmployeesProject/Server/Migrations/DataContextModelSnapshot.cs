@@ -49,7 +49,6 @@ namespace EmployeesProject.Server.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<int?>("PositionId")
-                        .HasMaxLength(50)
                         .HasColumnType("int");
 
                     b.Property<string>("Surname")

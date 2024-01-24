@@ -43,7 +43,6 @@ namespace EmployeesProject.Server.Data
 
             modelBuilder.Entity<Employee>()
                 .Property(e => e.PositionId)
-                .HasMaxLength(50)
                 .IsRequired(false);
 
 

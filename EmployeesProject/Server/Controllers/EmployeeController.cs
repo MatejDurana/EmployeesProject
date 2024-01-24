@@ -56,7 +56,8 @@ namespace EmployeesProject.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<ServiceResponse<bool>>> AddEmployeesFromJson([FromBody] string fileContent)
         {
-            return Ok(await _employeeService.AddEmployeesFromJson(fileContent));
+            var response = await _employeeService.AddEmployeesFromJson(fileContent);
+            return response.Success ? Ok(response) : StatusCode(500, response);
         }
 
     }

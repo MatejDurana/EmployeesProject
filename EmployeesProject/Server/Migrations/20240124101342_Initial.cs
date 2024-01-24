@@ -33,7 +33,7 @@ namespace EmployeesProject.Server.Migrations
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Surname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     BirthDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PositionId = table.Column<int>(type: "int", maxLength: 50, nullable: true),
+                    PositionId = table.Column<int>(type: "int", nullable: true),
                     IPAddress = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     IPCountryCode = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false)
                 },
