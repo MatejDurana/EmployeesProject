@@ -66,7 +66,7 @@ else
 @if (Id != null)
 {
     <br />
-    <button disabled="@disabledBtns" @onclick="(() => DeleteEmployee())" class="btn btn-danger">Delete position</button>
+    <button disabled="@disabledBtns" @onclick="(() => DeleteEmployee())" class="btn btn-danger">Delete employee</button>
 }
 
 <BlazoredToasts SuccessIcon="fa fa-thumbs-up" ErrorIcon="error_outline" Position="ToastPosition.BottomRight" />
@@ -89,7 +89,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        btnText = Id == null ? "Save new position" : "Update position";
+        btnText = Id == null ? "Save new employee" : "Update employee";
 
         positions = await PositionService.GetAllPositions();
 

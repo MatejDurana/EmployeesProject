@@ -4,6 +4,7 @@ using EmployeesProject.Server.Services.IPAddressServices;
 using EmployeesProject.Server.Services.PositionServices;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using IPositionService = EmployeesProject.Server.Services.PositionServices.IPositionService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +26,7 @@ builder.Services.AddScoped<IPositionService, PositionService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IPAddressService>();
 
+Log.Logger = new LoggerConfiguration().MinimumLevel.Information().Enrich.FromLogContext().WriteTo.File("logs/exeptionsLog.txt", rollingInterval: RollingInterval.Day).CreateLogger();
 
 
 var app = builder.Build();

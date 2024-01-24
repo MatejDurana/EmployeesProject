@@ -1,6 +1,7 @@
 ﻿using EmployeesProject.Server.Data;
 using EmployeesProject.Shared.Models;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System.Text.Json;
 
 namespace EmployeesProject.Server.Services.PositionServices
@@ -15,8 +16,11 @@ namespace EmployeesProject.Server.Services.PositionServices
 		}
         public async Task<Position> AddPosition(Position position)
 		{
-			_context.Add(position);
-			await _context.SaveChangesAsync();
+            if (await PositionExists(position.PositionName) == null)
+            {
+                _context.Add(position);
+			    await _context.SaveChangesAsync();
+            }
 			return position;
 		}
 
@@ -57,6 +61,7 @@ namespace EmployeesProject.Server.Services.PositionServices
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "{Method}: {Message}", nameof(AddPositionsFromJson), ex.Message);
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
@@ -109,12 +114,15 @@ namespace EmployeesProject.Server.Services.PositionServices
         public async Task<Position?> UpdatePosition(int id, Position position)
         {
 			var dbPosition = await _context.Positions.FindAsync(id);
-			if(dbPosition != null)
-			{
-				dbPosition.PositionName = position.PositionName;
-				await _context.SaveChangesAsync();
-			}
-			return dbPosition;
+            if (await PositionExists(position.PositionName) == null)
+            { 
+                if (dbPosition != null)
+			    {
+				    dbPosition.PositionName = position.PositionName;
+				    await _context.SaveChangesAsync();
+			    }
+            }
+            return dbPosition;
         }
     }
 }

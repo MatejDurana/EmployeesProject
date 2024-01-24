@@ -1,4 +1,5 @@
 ﻿using EmployeesProject.Shared.Models;
+using Serilog;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
@@ -50,6 +51,7 @@ namespace EmployeesProject.Server.Services.IPAddressServices
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "{Method}: {Message}", nameof(GetCountryCodeFromIPAddress), ex.Message);
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }

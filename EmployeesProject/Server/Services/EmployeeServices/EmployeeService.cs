@@ -4,6 +4,7 @@ using EmployeesProject.Server.Services.PositionServices;
 using EmployeesProject.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,6 +57,7 @@ namespace EmployeesProject.Server.Services.EmployeeServices
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "{Method}: {Message}", nameof(AddEmployee), ex.Message);
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
@@ -80,6 +82,7 @@ namespace EmployeesProject.Server.Services.EmployeeServices
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "{Method}: {Message}", nameof(GetAllEmployees), ex.Message);
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
@@ -101,6 +104,7 @@ namespace EmployeesProject.Server.Services.EmployeeServices
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "{Method}: {Message}", nameof(GetEmployeeById), ex.Message);
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
@@ -113,6 +117,12 @@ namespace EmployeesProject.Server.Services.EmployeeServices
 
             try
             {
+                if (await EmployeeExists(employee))
+                {
+                    serviceResponse.Hidden = false;
+                    throw new Exception("Employee with these details already exists.");
+                }
+
                 var dbEmployee = await _context.Employees.Include(e => e.Position).FirstOrDefaultAsync(e => e.Id == employee.Id);
                 if (dbEmployee == null)
                     throw new Exception($"Employee with Id '{employee.Id}' not found.");
@@ -140,6 +150,7 @@ namespace EmployeesProject.Server.Services.EmployeeServices
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "{Method}: {Message}", nameof(UpdateEmployee), ex.Message);
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
@@ -167,6 +178,7 @@ namespace EmployeesProject.Server.Services.EmployeeServices
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "{Method}: {Message}", nameof(DeleteEmployee), ex.Message);
                 serviceResponse.Data = false;
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
@@ -249,7 +261,7 @@ namespace EmployeesProject.Server.Services.EmployeeServices
             }
             catch (Exception ex)
             {
-                await Console.Out.WriteLineAsync(ex.Message);
+                Log.Error(ex, "{Method}: {Message}", nameof(AddEmployeesFromJson), ex.Message);
                 serviceResponse.Success = false;
                 serviceResponse.Message = ex.Message;
             }
